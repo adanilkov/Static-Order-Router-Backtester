@@ -5,7 +5,7 @@
 
 ## Approach
 
-1.  **Data Loading**:
+### 1.  **Data Loading**:
 
 * The script reads L1 market data from a CSV file (`l1_day.csv`).
 * Expects the csv to contain columns for event timestamp (`ts_event`), publisher ID (`publisher_id`), ask price (`ask_px_00`), ask size (`ask_sz_00`), and side (`side`).
@@ -13,7 +13,7 @@
 * For each unique `ts_event`, only the first message per `publisher_id` is kept to construct a snapshot of the market. Snapshots are processed chronologically.
 
 
-2.  **Static Router (Cont & Kukanov Model)** *(based on pseudocode & paper)*:
+### 2.  **Static Router (Cont & Kukanov Model)** *(based on pseudocode & paper)*:
 
 * The core of the backtest is the `allocate` function, it implements the static allocation strategy.
 * Given a target order size and the current market snapshot (venues with ask prices, sizes, fees, and rebates), it searches for an optimal split of the order across venues.
@@ -23,21 +23,20 @@
 * A grid search is performed over the penalty parameters to find the set that results in the lowest total cash spent for the entire order.
 
   
-3.  **Execution Simulation (`replay`)**:
+### 3.  **Execution Simulation (`replay`)**:
 
 * The `replay` function simulates executing a target total order size (e.g., 5000 shares) snapshot by snapshot.
 * At each snapshot, the allocator determines the share quantities for each venue.
 * Execution is simulated by "crossing the spread" (taking liquidity up to the displayed `ask_sz_00` at the `ask_px_00`.)
 * Any unfilled portion of the order rolls over to the next snapshot.
 
-4.  **Baseline Strategies**:
-
+### 4.  **Baseline Strategies**:
 * The router's performance is compared against:
 	*  `baseline_best_ask`: Sends all volume to the venue with the best (lowest) ask price in each snapshot.
 	*  `baseline_twap`: Calculates a Time Weighted Average Price over 60 second buckets and assumes execution at this price.
 	*  `baseline_vwap`: Calculates a Volume Weighted Average Price across all snapshots and assumes execution at this price.
 
-5.  **Output**:
+### 5.  **Output**:
 
 * The script outputs a JSON object containing the performance (total cash spent, average price) of the best router parameters found and all baseline strategies, along with savings in basis points.
 
